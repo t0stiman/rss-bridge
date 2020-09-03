@@ -177,7 +177,7 @@ EOD
 			return self::API_URI
 			. '/2/search/adaptive.json?q='
 			. urlencode($this->getInput('q'))
-			. '&tweet_mode=extended';
+			. '&tweet_mode=extended&tweet_search_mode=live';
 		case 'By username':
 			return self::API_URI
 			. '/2/timeline/profile/'
@@ -225,6 +225,9 @@ EOD
 			$item['username'] = $user_info->screen_name;
 			$item['fullname'] = $user_info->name;
 			$item['author'] = $item['fullname'] . ' (@' . $item['username'] . ')';
+			if (null !== $this->getInput('u') && $item['username'] != $this->getInput('u')) {
+				$item['author'] .= ' RT: @' . $this->getInput('u');
+			}
 			$item['avatar'] = $user_info->profile_image_url_https;
 
 			$item['id'] = $tweet->id_str;
@@ -232,9 +235,37 @@ EOD
 			// extract tweet timestamp
 			$item['timestamp'] = $tweet->created_at;
 
+			// Convert plain text URLs into HTML hyperlinks
+			$cleanedTweet = $tweet->full_text;
+			$foundUrls = false;
+
+			if (isset($tweet->entities->media)) {
+				foreach($tweet->entities->media as $media) {
+					$cleanedTweet = str_replace($media->url,
+						'<a href="' . $media->expanded_url . '">' . $media->display_url . '</a>',
+						$cleanedTweet);
+					$foundUrls = true;
+				}
+			}
+			if (isset($tweet->entities->urls)) {
+				foreach($tweet->entities->urls as $url) {
+					$cleanedTweet = str_replace($url->url,
+						'<a href="' . $url->expanded_url . '">' . $url->display_url . '</a>',
+						$cleanedTweet);
+					$foundUrls = true;
+				}
+			}
+			if ($foundUrls === false) {
+				// fallback to regex'es
+				$reg_ex = '/(http|https|ftp|ftps)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?/';
+				if(preg_match($reg_ex, $tweet->full_text, $url)) {
+					$cleanedTweet = preg_replace($reg_ex,
+						"<a href='{$url[0]}' target='_blank'>{$url[0]}</a> ",
+						$cleanedTweet);
+				}
+			}
 			// generate the title
-			$item['title'] = $tweet->full_text;
-			$cleanedTweet  = $tweet->full_text;
+			$item['title'] = strip_tags($cleanedTweet);
 
 			// Add avatar
 			$picture_html = '';
@@ -377,8 +408,19 @@ EOD;
 		if($data === null || (time() - $refresh) > self::GUEST_TOKEN_EXPIRY) {
 			$twitterPage = getContents('https://twitter.com');
 
-			$jsMainRegex = '/(https:\/\/abs\.twimg\.com\/responsive-web\/web_legacy\/main\.[^\.]+\.js)/m';
+			$jsMainRegex = '/(https:\/\/abs\.twimg\.com\/responsive-web\/web\/main\.[^\.]+\.js)/m';
 			preg_match_all($jsMainRegex, $twitterPage, $jsMainMatches, PREG_SET_ORDER, 0);
+			if (!$jsMainMatches) {
+				$jsMainRegex = '/(https:\/\/abs\.twimg\.com\/responsive-web\/web_legacy\/main\.[^\.]+\.js)/m';
+				preg_match_all($jsMainRegex, $twitterPage, $jsMainMatches, PREG_SET_ORDER, 0);
+			}
+			if (!$jsMainMatches) {
+				$jsMainRegex = '/(https:\/\/abs\.twimg\.com\/responsive-web\/client-web\/main\.[^\.]+\.js)/m';
+				preg_match_all($jsMainRegex, $twitterPage, $jsMainMatches, PREG_SET_ORDER, 0);
+			}
+			if (!$jsMainMatches) {
+				 returnServerError('Could not locate main.js link');
+			}
 			$jsLink = $jsMainMatches[0][0];
 
 			$jsContent = getContents($jsLink);
