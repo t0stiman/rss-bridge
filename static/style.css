@@ -21,18 +21,13 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
 }
 
 /* Let's go for the actual style */
-* {
-	scrollbar-color: #202324 #454a4d;
-}
-
 body {
-	background-color: #202325;
+	background-color: #f0f0f0;
 	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
-	color: #e8e6e3;
 }
 
 a, a:link, a:visited {
-	color: #0A6AB6;
+	color: #2196F3;
 	text-decoration: none;
 }
 
@@ -71,10 +66,9 @@ header > section.critical-warning {
 select,
 input[type="text"],
 input[type="number"] {
-	background-color: #181A1B;
-	color: white;
-
-	border: 1px solid #393E40;
+	background-color: white;
+	color: #404552;
+	border: 1px solid #dedede;
 	margin-left: 8px;
 	margin-bottom: 10px;
 	padding: 5px 10px;
@@ -119,7 +113,7 @@ input:focus:-ms-input-placeholder { opacity: 0; }
 
 /* Section */
 section {
-	background-color: #181A1B;
+	background-color: #FFFFFF;
 	width: 60%;
 	margin: 30px auto;
 	padding: 15px 15px;
@@ -155,7 +149,7 @@ button {
 	margin: 12px auto 0px;
 	border-radius: 4px;
 	border: 1px solid transparent;
-	background: #0A6AB6 none repeat scroll 0% 0%;
+	background: #2196F3 none repeat scroll 0% 0%;
 	cursor: pointer;
 	width: calc(20% - 4px);
 }
@@ -166,7 +160,7 @@ button.small {
 }
 
 button:hover {
-	background: #004daa;
+	background: #49afff;
 }
 
 .description {
@@ -240,7 +234,7 @@ form {
 	.parameters input[type="text"],
 	.parameters input[type="number"] {
 		width: auto;
-		color: #BAB4AB;
+		color: #404552;
 	}
 
 	.parameters input[type="checkbox"] {
@@ -290,7 +284,7 @@ h5 {
 	cursor: pointer;
 }
 .showmore:hover, .showless:hover {
-	color: #d8d3cb;
+	color: #000;
 	cursor: pointer;
 }
 
