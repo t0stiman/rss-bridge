@@ -6,7 +6,7 @@ class RaceDepartmentBridge extends FeedExpander {
 	const MAINTAINER = 't0stiman';
 
 	public function collectData() {
-		$this->collectExpandableDatas('https://www.racedepartment.com/news/archive.rss', 10);
+		$this->collectExpandableDatas('https://www.racedepartment.com/ams/index.rss', 10);
 	}
 
 	protected function parseItem($feedItem) {
