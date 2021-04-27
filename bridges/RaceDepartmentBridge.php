@@ -10,13 +10,17 @@ class RaceDepartmentBridge extends FeedExpander {
 	}
 
 	protected function parseItem($feedItem) {
-		$item = parent::parseItem($feedItem);
+		$item = parent::parseRSS_2_0_Item($feedItem);
 
 		//fetch page
 		$articlePage = getSimpleHTMLDOMCached($feedItem->link)
 			or returnServerError('Could not retrieve ' . $feedItem->link);
-		//extract article
-		$item['content'] = $articlePage->find('div.thfeature_firstPost', 0);
+
+		$coverImage = $articlePage->find('img.js-articleCoverImage', 0);
+		#relative url -> absolute url
+		$coverImage = str_replace('src="/', 'src="' . $this->getURI() . '/', $coverImage);
+		$article = $articlePage->find('article.articleBody-main > div.bbWrapper', 0);
+		$item['content'] = str_get_html($coverImage . $article);
 
 		//convert iframes to links. meant for embedded videos.
 		foreach($item['content']->find('iframe') as $found) {
@@ -28,28 +32,10 @@ class RaceDepartmentBridge extends FeedExpander {
 			}
 		}
 
-		//get rid of some elements we don't need
-		$to_remove_selectors = array(
-			'div.p-title',		//title
-			'ul.listInline',	//Thread starter, Start date
-			'div.rd_news_article_share_buttons',
-			'div.thfeature_firstPost-author',
-			'div.reactionsBar',
-			'footer',
-			'div.message-lastEdit',
-			'section.message-attachments'
-		);
-
-		foreach($to_remove_selectors as $selector) {
-			foreach($item['content']->find($selector) as $found) {
-				$found->outertext = '';
-			}
+		$item['categories'] = array();
+		foreach($articlePage->find('a.tagItem') as $tag) {
+			array_push($item['categories'], $tag->innertext);
 		}
-
-		//category
-		$forumPath = $articlePage->find('div.breadcrumb', 0);
-		$pathElements = $forumPath->find('span');
-		$item['categories'] = array(end($pathElements)->innertext);
 
 		return $item;
 	}
