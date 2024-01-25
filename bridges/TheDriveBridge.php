@@ -6,6 +6,7 @@ class TheDriveBridge extends FeedExpander
     const URI = 'https://www.thedrive.com/';
     const DESCRIPTION = 'Car news from thedrive.com';
     const MAINTAINER = 't0stiman';
+    const DONATION_URI = 'https://ko-fi.com/tostiman';
 
     public function collectData()
     {

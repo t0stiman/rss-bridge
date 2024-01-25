@@ -6,13 +6,11 @@ class CarThrottleBridge extends BridgeAbstract
     const URI = 'https://www.carthrottle.com/';
     const DESCRIPTION = 'Get the latest car-related news from Car Throttle.';
     const MAINTAINER = 't0stiman';
+    const DONATION_URI = 'https://ko-fi.com/tostiman';
 
     public function collectData()
     {
         $news = getSimpleHTMLDOMCached(self::URI . 'news');
-
-        // $reviews = getSimpleHTMLDOMCached(self::URI . 'reviews')
-        //     or returnServerError('could not retrieve page');
 
         $this->items[] = [];
 

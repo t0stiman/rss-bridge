@@ -6,6 +6,7 @@ class EpicGamesGiveawayBridge extends BridgeAbstract
     const URI = 'https://ep.reddit.com/r/FreeGameFindings/new';
     const DESCRIPTION = 'Latest free games from the Epic Game Store';
     const MAINTAINER = 't0stiman';
+    const DONATION_URI = 'https://ko-fi.com/tostiman';
 
     public function collectData()
     {
