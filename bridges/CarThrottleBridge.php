@@ -104,25 +104,6 @@ class CarThrottleBridge extends BridgeAbstract
                 $found->outertext = '';
             }
 
-            //todo is this necessary?
-            //replace embedded youtube videos with links
-            // foreach ($articleElement->find('iframe') as $found) {
-            //     $iframeUrl = $found->getAttribute('src');
-
-            //     //simply using the existing url doesn't work because RSS-bridge removes double slashes
-            //     if(preg_match('/youtu\.be\/+(\w+)/', $iframeUrl, $matches))
-            //     {
-            //         $youtubeID = $matches[1];
-            //     }
-            //     else {
-            //         continue;
-            //     }
-
-            //     $thumbnailURL = 'https://i.ytimg.com/vi/' . $youtubeID . '/hqdefault.jpg';
-            //     $videoURL = 'https://youtu/be/' . $youtubeID;
-            //     $found->outertext = '<a href="' . $videoURL . '"><img src="' . $thumbnailURL . '" alt="' . $videoURL . '"></a>';
-            // }
-
             $item['content'] = $summary . $articleElement;
 
             array_push($this->items, $item);
@@ -142,43 +123,5 @@ class CarThrottleBridge extends BridgeAbstract
         }
 
         return $authorDivs[0]->innertext;
-    }
-
-    //convert relative url to absolute
-    //https://stackoverflow.com/a/4444490/4671120
-    private function rel2abs($rel, $base)
-    {
-        /* return if already absolute URL */
-        if (parse_url($rel, PHP_URL_SCHEME) != '') {
-            return $rel;
-        }
-
-        /* queries and anchors */
-        if ($rel[0] == '#' || $rel[0] == '?') {
-            return $base . $rel;
-        }
-
-        /* parse base URL and convert to local variables:
-           $scheme, $host, $path */
-        extract(parse_url($base));
-
-        /* remove non-directory element from path */
-        $path = preg_replace('#/[^/]*$#', '', $path);
-
-        /* destroy path if relative url points to root */
-        if ($rel[0] == '/') {
-            $path = '';
-        }
-
-        /* dirty absolute URL */
-        $abs = "$host$path/$rel";
-
-        /* replace '//' or '/./' or '/foo/../' with '/' */
-        $re = ['#(/\.?/)#', '#/(?!\.\.)[^/]+/\.\./#'];
-        for ($n = 1; $n > 0; $abs = preg_replace($re, '/', $abs, -1, $n)) {
-        }
-
-        /* absolute URL is ready! */
-        return $scheme . '://' . $abs;
     }
 }

@@ -1,12 +1,10 @@
 <?php
 
-// Path to the formats library
-const PATH_LIB_FORMATS = __DIR__ . '/../formats/';
+if (is_file(__DIR__ . '/../vendor/autoload.php')) {
+    require __DIR__ . '/../vendor/autoload.php';
+}
 
-/** Path to the caches library */
 const PATH_LIB_CACHES = __DIR__ . '/../caches/';
-
-/** Path to the cache folder */
 const PATH_CACHE = __DIR__ . '/../cache/';
 
 // Allow larger files for simple_html_dom
@@ -24,9 +22,9 @@ $files = [
     __DIR__ . '/../lib/url.php',
     __DIR__ . '/../lib/seotags.php',
     // Vendor
-    __DIR__ . '/../vendor/parsedown/Parsedown.php',
-    __DIR__ . '/../vendor/php-urljoin/src/urljoin.php',
-    __DIR__ . '/../vendor/simplehtmldom/simple_html_dom.php',
+    __DIR__ . '/../lib/parsedown/Parsedown.php',
+    __DIR__ . '/../lib/php-urljoin/src/urljoin.php',
+    __DIR__ . '/../lib/simplehtmldom/simple_html_dom.php',
 ];
 foreach ($files as $file) {
     require_once $file;
@@ -47,3 +45,9 @@ spl_autoload_register(function ($className) {
         }
     }
 });
+
+$customConfig = [];
+if (file_exists(__DIR__ . '/../config.ini.php')) {
+    $customConfig = parse_ini_file(__DIR__ . '/../config.ini.php', true, INI_SCANNER_TYPED);
+}
+Configuration::loadConfiguration($customConfig, getenv());

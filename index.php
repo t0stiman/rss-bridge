@@ -6,6 +6,12 @@ if (version_compare(\PHP_VERSION, '7.4.0') === -1) {
     exit;
 }
 
+if (! is_readable(__DIR__ . '/lib/bootstrap.php')) {
+    http_response_code(500);
+    print 'Unable to read lib/bootstrap.php. Check file permissions.';
+    exit;
+}
+
 require_once __DIR__ . '/lib/bootstrap.php';
 
 set_exception_handler(function (\Throwable $e) {
@@ -56,12 +62,6 @@ if ($errors) {
     print '<pre>' . implode("\n", $errors) . '</pre>';
     exit;
 }
-
-$customConfig = [];
-if (file_exists(__DIR__ . '/config.ini.php')) {
-    $customConfig = parse_ini_file(__DIR__ . '/config.ini.php', true, INI_SCANNER_TYPED);
-}
-Configuration::loadConfiguration($customConfig, getenv());
 
 // Consider: ini_set('error_reporting', E_ALL & ~E_DEPRECATED);
 
