@@ -10,10 +10,15 @@ class EpicGamesGiveawayBridge extends BridgeAbstract
 
     public function collectData()
     {
-        $page = getSimpleHTMLDOMCached(self::URI)
-            or returnServerError('could not retrieve page');
-
         $this->items[] = [];
+
+        $page = null;
+        try {
+            $page = getSimpleHTMLDOMCached(self::URI);
+        } catch (HttpException $ex) {
+            // Reddit throws a 403 forbidden sometimes
+            return;
+        }
 
         //for each post
         foreach ($page->find('div.link a.title') as $post) {
