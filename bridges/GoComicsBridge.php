@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 class GoComicsBridge extends BridgeAbstract
 {
     const MAINTAINER = 'TReKiE';
@@ -24,14 +26,17 @@ class GoComicsBridge extends BridgeAbstract
             'name' => 'Limit',
             'type' => 'number',
             'title' => 'The number of recent comics to get',
-            'defaultValue' => 5
+            'defaultValue' => 2
         ]
     ]];
 
     public function collectData()
     {
         $link = $this->getURI();
-        $landingpage = getSimpleHTMLDOM($link);
+        $header = [
+            'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36'
+        ];
+        $landingpage = getSimpleHTMLDOM($link, $header);
         $element = $landingpage->find('div[data-post-url]', 0);
         if ($element) {
             $link = $element->getAttribute('data-post-url');
@@ -48,11 +53,10 @@ class GoComicsBridge extends BridgeAbstract
         }
 
         for ($i = 0; $i < $this->getInput('limit'); $i++) {
-            $html = getSimpleHTMLDOMCached($link, 86400);
+            $html = getSimpleHTMLDOMCached($link, 86400, $header);
 
             $imagelink = $html->find('meta[property="og:image"]', 0)->content;
-            $parts = explode('/', $link);
-            $date = DateTime::createFromFormat('Y/m/d', implode('/', array_slice($parts, -3)));
+
             $title = $html->find('meta[property="og:title"]', 0)->content;
             preg_match('/by (.*?) for/', $title, $authormatches);
             $author = $authormatches[1] ?? 'GoComics';
@@ -65,11 +69,22 @@ class GoComicsBridge extends BridgeAbstract
             if ($this->getInput('date-in-title') === true) {
                 $item['title'] = $title;
             }
-            $item['timestamp'] = $date->setTime(0, 0, 0)->getTimestamp();
+
+            $parts = explode('/', $link);
+            $date = DateTime::createFromFormat('Y/m/d', implode('/', array_slice($parts, -3)));
+            if ($date) {
+                $item['timestamp'] = $date->setTime(0, 0, 0)->getTimestamp();
+            }
+
             $item['content'] = '<img src="' . $imagelink . '" />';
 
-            $link = rtrim(self::URI, '/') . $html->find('a[class*="ComicNavigation_controls__button_previous__"]', 0)->href;
             $this->items[] = $item;
+
+            $button_previous = $html->find('a[class*="__controls__button_previous"]', 0);
+            if (! $button_previous) {
+                break;
+            }
+            $link = rtrim(self::URI, '/') . $button_previous->href;
         }
     }
 
