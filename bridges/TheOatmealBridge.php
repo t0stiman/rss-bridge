@@ -4,7 +4,7 @@ class TheOatmealBridge extends FeedExpander
 {
     const NAME = 'The Oatmeal';
     const URI = 'https://theoatmeal.com/';
-    const DESCRIPTION = 'Fetch the entire comic image';
+    const DESCRIPTION = 'Get the latest comics from The Oatmeal';
     const MAINTAINER = 't0stiman';
     const DONATION_URI = 'https://ko-fi.com/tostiman';
 
